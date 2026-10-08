@@ -1,0 +1,72 @@
+name: Deploy APUSHpedia
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          path: APUSHpedia
+
+      - name: Checkout content
+        uses: actions/checkout@v6
+        with:
+          repository: schemata-nichols/APUSHpedia-content
+          ref: main
+          fetch-depth: 0
+          path: APUSHpedia-content
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: APUSHpedia/package-lock.json
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install dependencies
+        working-directory: APUSHpedia
+        run: npm ci
+
+      - name: Install Quartz plugins
+        working-directory: APUSHpedia
+        run: npx quartz plugin install
+
+      - name: Build Quartz
+        working-directory: APUSHpedia
+        run: npx quartz build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: APUSHpedia/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
