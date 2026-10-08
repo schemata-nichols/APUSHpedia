@@ -18,13 +18,13 @@ jobs:
 
     steps:
       - name: Checkout site
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           path: APUSHpedia
 
       - name: Checkout content
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: schemata-nichols/APUSHpedia-content
           ref: main
@@ -39,7 +39,7 @@ jobs:
           cache-dependency-path: APUSHpedia/package-lock.json
 
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Install dependencies
         working-directory: APUSHpedia
@@ -54,7 +54,7 @@ jobs:
         run: npx quartz build
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: APUSHpedia/public
 
@@ -69,4 +69,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
